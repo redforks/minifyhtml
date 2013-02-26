@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from sys import argv
-import sys
+import sys, re
 from html.parser import HTMLParser
 
 class MinifyHandler(HTMLParser):
@@ -53,9 +53,25 @@ class MinifyHandler(HTMLParser):
     def p(self, *args, **kargs):
         print(file=self._outfile, end='', sep='', *args, **kargs)
 
+    _SAFE_ATTR_VALUE = re.compile(r'^[a-z0-9\-.Z:]+$', re.I | re.M)
+
     def __convert_attrs(self, attrs):
+        def convert_value(v):
+            if MinifyHandler._SAFE_ATTR_VALUE.match(v):
+                return v
+
+            quote = ''
+            has_single = "'" in v
+            has_double = '"' in v
+            if has_single ^ has_double:
+                quote = '"' if has_single else "'"
+                return quote + v + quote
+            else:
+                quote = '"'
+                return quote + v.replace('"', '&#34;') + quote
+
         def convert_attr(k, v):
-            return k if v is None else k + '="' + v + '"'
+            return k if v is None else k + '=' + convert_value(v)
         return ' '.join(convert_attr(k, v) for k, v in attrs)
 
 if __name__ == '__main__':

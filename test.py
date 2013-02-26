@@ -56,9 +56,15 @@ class TestMinify(unittest.TestCase):
         self._same('<!DOCTYPE html>')
 
     def test_attribute(self):
-        self._same('<foo foo="bar">')
+        self._same('<foo foo="\'">')
         self._same('<foo foo>')
-        self._same('<foo foo foo="bar">')
+        self._same('<foo foo foo="\'">')
+
+        self._assert("<f foo='\"'>", '<f foo="&quot;">')
+        self._assert('<f foo="\'">', '<f foo="\'">')
+        self._assert('<f foo="\'">', '<f foo="&#39;">')
+        self._assert('<f foo="\'&#34;">', '<f foo="\'&quot;">')
+        self._assert('<f foo=:bar>', '<f foo=":bar">')
 
     def _assert(self, expected, html):
         self.assertEqual(expected, minify(html))
