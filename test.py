@@ -66,11 +66,19 @@ class TestMinify(unittest.TestCase):
         self._assert('<f foo="\'&#34;">', '<f foo="\'&quot;">')
         self._assert('<f foo=:bar>', '<f foo=":bar">')
 
+        self._assert('<f foo=bar>', '<f foo = bar >')
+
     def test_trim_space(self):
         self._same(' ')
         self._assert(' ', '    ')
         self._assert(' foo bar', '\rfoo\nbar')
         self._same('&nbsp; ')
+
+    def test_untouch_pre_textarea_style_script(self):
+        self._same('<pre>    </pre>')
+        self._same('<textarea>    </textarea>')
+        self._same('<style>    </style>')
+        self._same('<script>    </script>')
 
     def _assert(self, expected, html):
         self.assertEqual(expected, minify(html))

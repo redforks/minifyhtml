@@ -8,18 +8,28 @@ class MinifyHandler(HTMLParser):
     def __init__(self, outfile):
         super(MinifyHandler, self).__init__(strict=True)
         self._outfile = outfile
+        self._tag_stack = []
 
     def close(self):
         self._outfile.flush()
         super(MinifyHandler, self).close()
 
     def handle_starttag(self, tag, attrs):
+        self._tag_stack.append(tag.lower())
+
         self.p('<' + tag)
         if attrs:
             self.p(' ', self.__convert_attrs(attrs))
         self.p('>')
 
     def handle_endtag(self, tag):
+        if not self._tag_stack:
+            self.error('An end element without start element: ' + tag)
+
+        if self._tag_stack[-1] != tag.lower():
+            self.error('overlapped tag: {}, {}'.format(tag,
+                self._tag_stack[-1]))
+
         self.p('</', tag, '>')
 
     def handle_startendtag(self, tag, attrs):
@@ -28,12 +38,15 @@ class MinifyHandler(HTMLParser):
             self.p(' ', self.__convert_attrs(attrs))
         self.p('/>')
 
+    _PRE_TAGS = {'pre', 'textarea', 'style', 'script'}
+
     def handle_data(self, data):
         if '<' in data or '>' in data:
             self.error('bad data, "<" or ">" should be entityref')
         if '&' in data:
             self.error('bad data or entityref, "&" should be use entityref')
-        data = MinifyHandler._SPACE.sub(' ', data)
+        if not (MinifyHandler._PRE_TAGS & set(self._tag_stack)):
+            data = MinifyHandler._SPACE.sub(' ', data)
         self.p(data)
 
     def handle_entityref(self, name):
