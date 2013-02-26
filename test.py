@@ -66,6 +66,12 @@ class TestMinify(unittest.TestCase):
         self._assert('<f foo="\'&#34;">', '<f foo="\'&quot;">')
         self._assert('<f foo=:bar>', '<f foo=":bar">')
 
+    def test_trim_space(self):
+        self._same(' ')
+        self._assert(' ', '    ')
+        self._assert(' foo bar', '\rfoo\nbar')
+        self._same('&nbsp; ')
+
     def _assert(self, expected, html):
         self.assertEqual(expected, minify(html))
 

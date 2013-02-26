@@ -33,6 +33,7 @@ class MinifyHandler(HTMLParser):
             self.error('bad data, "<" or ">" should be entityref')
         if '&' in data:
             self.error('bad data or entityref, "&" should be use entityref')
+        data = MinifyHandler._SPACE.sub(' ', data)
         self.p(data)
 
     def handle_entityref(self, name):
@@ -54,6 +55,7 @@ class MinifyHandler(HTMLParser):
         print(file=self._outfile, end='', sep='', *args, **kargs)
 
     _SAFE_ATTR_VALUE = re.compile(r'^[a-z0-9\-.Z:]+$', re.I | re.M)
+    _SPACE = re.compile('\s+', re.M)
 
     def __convert_attrs(self, attrs):
         def convert_value(v):
