@@ -42,7 +42,7 @@ class MinifyHandler(HTMLParser):
         self.p('&#' + name + ';')
 
     def handle_decl(self, decl):
-        self.p('<!', decl, '>')
+        self.p('<!', decl, '>\n')
 
     def handle_unknown_decl(self, data):
         self.error('Unknown decl')

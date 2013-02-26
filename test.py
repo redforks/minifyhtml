@@ -53,7 +53,7 @@ class TestMinify(unittest.TestCase):
         self._assert('', '<!-- comment -->')
 
     def test_decl(self):
-        self._same('<!DOCTYPE html>')
+        self._assert('<!DOCTYPE html>\n', '<!DOCTYPE html>')
 
     def test_attribute(self):
         self._same('<foo foo="\'">')
